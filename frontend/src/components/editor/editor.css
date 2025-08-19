@@ -1,0 +1,600 @@
+/* 
+ * 飞书文档风格的 EditorJS 样式
+ * 基于 ao- 前缀的 Tailwind CSS 系统
+ */
+
+/* === 编辑器容器 === */
+.codex-editor {
+  position: relative;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-color, #1f2329);
+  background: var(--bg-color, #ffffff);
+}
+
+/* === 飞书风格编辑器特定样式 === */
+.feishu-editor .codex-editor {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.feishu-editor .codex-editor__redactor {
+  padding: 0;
+  min-height: 500px;
+}
+
+/* === 飞书风格特定优化 === */
+.feishu-editor .ce-block {
+  max-width: none;
+}
+
+.feishu-editor .ce-toolbar {
+  left: -44px;
+}
+
+.feishu-editor .ce-toolbar__plus {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e7e9e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feishu-editor .ce-toolbar__plus:hover {
+  background: #f5f6f7;
+  border-color: #3370ff;
+  box-shadow: 0 4px 12px rgba(51, 112, 255, 0.15);
+}
+
+.feishu-editor .ce-inline-toolbar {
+  background: #ffffff;
+  border: 1px solid #e7e9e8;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+}
+
+.feishu-editor .ce-popover {
+  background: #ffffff;
+  border: 1px solid #e7e9e8;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+}
+
+.feishu-editor .ce-popover__item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.feishu-editor .ce-popover__item:hover {
+  background: #f5f6f7;
+}
+
+/* === 移动端适配 === */
+@media (max-width: 768px) {
+  .feishu-editor .ce-toolbar {
+    left: -40px;
+  }
+  
+  .feishu-editor .ce-toolbar__plus {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .feishu-editor .ce-popover {
+    max-width: 280px;
+  }
+}
+
+/* === 编辑器主体区域 === */
+.codex-editor__redactor {
+  padding: 20px 0;
+  min-height: 300px;
+}
+
+/* === 块级元素通用样式 === */
+.ce-block {
+  position: relative;
+  padding: 6px 0;
+  margin: 0;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+/* 块级元素悬浮效果 - 飞书风格 */
+.ce-block:hover {
+  background-color: var(--block-hover-color, #f8f9fa);
+}
+
+/* 块级元素聚焦状态 */
+.ce-block--focused {
+  background-color: var(--block-selected-color, #e8f4ff);
+  border-left: 3px solid var(--primary-color, #3370ff);
+  padding-left: 17px;
+}
+
+/* === 块级工具栏 === */
+.ce-toolbar {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.ce-block:hover .ce-toolbar {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ce-toolbar__content {
+  display: flex;
+  align-items: center;
+}
+
+.ce-toolbar__plus {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--toolbar-bg, #ffffff);
+  border: 1px solid var(--border-color, #e7e9e8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ce-toolbar__plus:hover {
+  background: var(--hover-color, #f5f6f7);
+  border-color: var(--primary-color, #3370ff);
+}
+
+/* === 内联工具栏 - 飞书风格 === */
+.ce-inline-toolbar {
+  background: var(--inline-toolbar-bg, #ffffff);
+  border: 1px solid var(--border-color, #e7e9e8);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ce-inline-tool {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+}
+
+.ce-inline-tool:hover {
+  background: var(--hover-color, #f5f6f7);
+}
+
+.ce-inline-tool--active {
+  background: var(--selected-color, #eef0ff);
+  color: var(--primary-color, #3370ff);
+}
+
+/* === 块级工具面板 === */
+.ce-popover {
+  background: var(--toolbar-bg, #ffffff);
+  border: 1px solid var(--border-color, #e7e9e8);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  max-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ce-popover__item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  color: var(--text-color, #1f2329);
+}
+
+.ce-popover__item:hover {
+  background: var(--hover-color, #f5f6f7);
+}
+
+.ce-popover__item-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color, #3370ff);
+}
+
+/* === 段落样式 === */
+.ce-paragraph {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  font-size: 16px;
+  color: var(--text-color, #1f2329);
+}
+
+.ce-paragraph[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: var(--placeholder-color, #8f959e);
+  pointer-events: none;
+}
+
+/* === 标题样式 - 飞书风格 === */
+.ce-header {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+  color: var(--text-color, #1f2329);
+  line-height: 1.4;
+}
+
+.ce-header[data-level="1"] { font-size: 32px; margin: 24px 0 16px 0; }
+.ce-header[data-level="2"] { font-size: 24px; margin: 20px 0 12px 0; }
+.ce-header[data-level="3"] { font-size: 20px; margin: 16px 0 8px 0; }
+.ce-header[data-level="4"] { font-size: 18px; margin: 12px 0 6px 0; }
+.ce-header[data-level="5"] { font-size: 16px; margin: 8px 0 4px 0; }
+.ce-header[data-level="6"] { font-size: 14px; margin: 6px 0 2px 0; }
+
+/* === 列表样式 === */
+.cdx-list {
+  margin: 0;
+  padding-left: 0;
+}
+
+.cdx-list__item {
+  line-height: 1.6;
+  padding: 2px 0;
+  margin: 0;
+  list-style: none;
+  position: relative;
+  padding-left: 24px;
+}
+
+.cdx-list--unordered .cdx-list__item::before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: var(--primary-color, #3370ff);
+  font-weight: bold;
+}
+
+.cdx-list--ordered {
+  counter-reset: list-counter;
+}
+
+.cdx-list--ordered .cdx-list__item {
+  counter-increment: list-counter;
+}
+
+.cdx-list--ordered .cdx-list__item::before {
+  content: counter(list-counter) ".";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #3370ff);
+  font-weight: 600;
+  min-width: 20px;
+}
+
+/* === 代码块样式 === */
+.ce-code {
+  background: #f8f9fa;
+  border: 1px solid var(--border-color, #e7e9e8);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.ce-code__textarea {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  resize: none;
+  width: 100%;
+  color: var(--text-color, #1f2329);
+}
+
+/* === 引用样式 - 飞书风格 === */
+.cdx-quote {
+  margin: 16px 0;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-left: 4px solid var(--primary-color, #3370ff);
+  border-radius: 0 8px 8px 0;
+}
+
+.cdx-quote__text {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-color, #1f2329);
+  font-style: italic;
+}
+
+.cdx-quote__caption {
+  margin: 0;
+  font-size: 14px;
+  color: var(--secondary-text-color, #8f959e);
+  text-align: right;
+}
+
+/* === 表格样式 === */
+.tc-table {
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e7e9e8);
+}
+
+.tc-table__wrap {
+  overflow-x: auto;
+}
+
+.tc-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tc-table td {
+  border: 1px solid var(--border-color, #e7e9e8);
+  padding: 12px;
+  vertical-align: top;
+  min-width: 120px;
+}
+
+.tc-table td:focus {
+  outline: 2px solid var(--primary-color, #3370ff);
+  outline-offset: -2px;
+}
+
+/* === 警告块样式 === */
+.cdx-warning {
+  margin: 16px 0;
+  padding: 16px;
+  background: #fff7e6;
+  border: 1px solid #ffc53d;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cdx-warning__icon {
+  color: #fa8c16;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cdx-warning__content {
+  flex: 1;
+}
+
+.cdx-warning__title {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  color: var(--text-color, #1f2329);
+}
+
+.cdx-warning__message {
+  margin: 0;
+  color: var(--text-color, #1f2329);
+  line-height: 1.6;
+}
+
+/* === 分隔线样式 === */
+.ce-delimiter {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.ce-delimiter::before {
+  content: "* * *";
+  color: var(--border-color, #e7e9e8);
+  font-size: 18px;
+  letter-spacing: 8px;
+}
+
+/* === 图片样式 === */
+.image-tool {
+  margin: 16px 0;
+}
+
+.image-tool__image-picture {
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.image-tool__image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-tool__caption {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--secondary-text-color, #8f959e);
+  font-style: italic;
+}
+
+/* === 嵌入内容样式 === */
+.embed-tool {
+  margin: 16px 0;
+}
+
+.embed-tool__content {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #e7e9e8);
+}
+
+/* === 链接工具样式 === */
+.link-tool {
+  margin: 16px 0;
+  border: 1px solid var(--border-color, #e7e9e8);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+}
+
+.link-tool:hover {
+  border-color: var(--primary-color, #3370ff);
+  background: var(--hover-color, #f5f6f7);
+}
+
+.link-tool__image {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.link-tool__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.link-tool__title {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-color, #1f2329);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-tool__description {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--secondary-text-color, #8f959e);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.link-tool__anchor {
+  font-size: 12px;
+  color: var(--primary-color, #3370ff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* === 响应式设计 === */
+@media (max-width: 768px) {
+  .codex-editor__redactor {
+    padding: 16px 0;
+  }
+  
+  .ce-toolbar {
+    left: -36px;
+  }
+  
+  .ce-toolbar__plus {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .ce-inline-tool {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .ce-popover {
+    max-width: 280px;
+  }
+}
+
+/* === 暗色主题支持 === */
+@media (prefers-color-scheme: dark) {
+  .codex-editor {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --border-color: #333333;
+    --hover-color: #2a2a2a;
+    --selected-color: #1e3a5f;
+    --block-hover-color: #222222;
+    --block-selected-color: #1e3a5f;
+    --toolbar-bg: #2a2a2a;
+    --inline-toolbar-bg: #2a2a2a;
+    --secondary-text-color: #999999;
+    --placeholder-color: #666666;
+  }
+  
+  .ce-code {
+    background: #2a2a2a;
+    border-color: #444444;
+  }
+  
+  .cdx-quote {
+    background: #2a2a2a;
+  }
+  
+  .tc-table {
+    border-color: #444444;
+  }
+  
+  .tc-table td {
+    border-color: #444444;
+  }
+}
+
+/* === 滚动条样式 === */
+.ce-popover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ce-popover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ce-popover::-webkit-scrollbar-thumb {
+  background: var(--border-color, #e7e9e8);
+  border-radius: 3px;
+}
+
+.ce-popover::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-text-color, #8f959e);
+}

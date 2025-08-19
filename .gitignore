@@ -1,0 +1,26 @@
+# Development documentation (internal only, not for git)
+develop-pregress.md
+develop-*.md
+dev-notes.md
+development.md
+progress.md
+todo.md
+notes.md
+NOTES.md
+DEV.md
+开发*.md
+进度*.md
+*开发文档*
+*进度报告*
+
+# Design documents (if internal only)
+UI-UX*.md
+产品需求文档*.md
+项目总结*.md
+前缀配置*.md
+
+# Common development files
+.DS_Store
+*.log
+temp/
+tmp/
