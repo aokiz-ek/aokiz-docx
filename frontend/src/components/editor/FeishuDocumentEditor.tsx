@@ -45,7 +45,7 @@ export interface FeishuDocumentEditorProps {
   readOnly?: boolean;
   className?: string;
   enableHoverToolbar?: boolean;
-  hoverToolbarPlugins?: 'basic' | 'advanced' | 'full' | any[];
+  hoverToolbarPlugins?: 'basic' | 'advanced' | 'full' | string[];
 }
 
 // 生成协作者颜色
@@ -69,7 +69,7 @@ const navigationItems = [
 ];
 
 /**
- * 飞书风格文档编辑器 - 专业三栏布局设计
+ * AO风格文档编辑器 - 专业三栏布局设计
  * 左侧导航栏 + 中央编辑区 + 右侧协作面板
  */
 const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
@@ -144,8 +144,8 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
         setLastSaved(now);
         message.success('文档已保存');
       }
-    } catch (error) {
-      console.error('保存失败:', error);
+    } catch {
+      // 保存失败处理
       if (showMessage) {
         message.error('保存失败，请重试');
       }
@@ -468,8 +468,8 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
         {!readOnly && (
           <DocumentToolbar 
             editorInstance={editorRef.current?.getInstance()}
-            onCommand={(command, params) => {
-              console.log('Toolbar command:', command, params);
+            onCommand={(_command, _params) => {
+              // 工具栏命令处理
             }}
           />
         )}

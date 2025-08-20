@@ -30,7 +30,7 @@ export interface DocumentEditorProps {
 }
 
 /**
- * 飞书风格的文档编辑器组件
+ * AO风格的文档编辑器组件
  * 包含标题编辑、工具栏、协作者显示等功能
  */
 const DocumentEditor: React.FC<DocumentEditorProps> = ({

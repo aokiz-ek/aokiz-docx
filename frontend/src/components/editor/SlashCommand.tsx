@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { 
   Input
 } from 'antd';
@@ -22,8 +22,8 @@ import {
   UploadOutlined,
   CaretDownOutlined,
   ControlOutlined,
-  BgColorsOutlined,
-  UnderlineOutlined
+  // BgColorsOutlined,
+  // UnderlineOutlined
 } from '@ant-design/icons';
 import {
   AlertOutlined,
@@ -51,8 +51,8 @@ export interface SlashCommandProps {
 }
 
 /**
- * 飞书风格的斜杠命令菜单
- * 提供类似 Notion/飞书的块插入体验
+ * AO风格的斜杠命令菜单
+ * 提供类似 Notion/AO的块插入体验
  */
 export const SlashCommand: React.FC<SlashCommandProps> = ({
   visible,
@@ -65,6 +65,32 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<any>(null);
+
+  // 插入块的函数
+  const insertBlock = useCallback(async (type: string, data: any) => {
+    if (!editorInstance) return Promise.resolve();
+
+    try {
+      const currentBlock = editorInstance.blocks.getCurrentBlockIndex();
+      await editorInstance.blocks.insert(type, data, {}, currentBlock + 1);
+      // 聚焦到新插入的块
+      setTimeout(() => {
+        editorInstance.caret.setToBlock(currentBlock + 1);
+      }, 100);
+      return Promise.resolve();
+    } catch (error) {
+      // 插入块失败
+      return Promise.reject(error);
+    }
+  }, [editorInstance]);
+
+  // 处理命令选择
+  const handleCommandSelect = useCallback((command: SlashCommandItem) => {
+    onSelect(command);
+    command.action();
+    onClose();
+    return true;
+  }, [onSelect, onClose]);
 
   // 命令列表配置
   const commands: SlashCommandItem[] = useMemo(() => [
@@ -307,25 +333,7 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
         tooltip: '这是一个提示说明'
       })
     }
-  ], []);
-
-  // 插入块的函数
-  const insertBlock = async (type: string, data: any) => {
-    if (!editorInstance) return Promise.resolve();
-
-    try {
-      const currentBlock = editorInstance.blocks.getCurrentBlockIndex();
-      await editorInstance.blocks.insert(type, data, {}, currentBlock + 1);
-      // 聚焦到新插入的块
-      setTimeout(() => {
-        editorInstance.caret.setToBlock(currentBlock + 1);
-      }, 100);
-      return Promise.resolve();
-    } catch (error) {
-      console.error('插入块失败:', error);
-      return Promise.reject(error);
-    }
-  };
+  ], [insertBlock]);
 
   // 根据搜索词过滤命令
   const filteredCommands = useMemo(() => {
@@ -396,7 +404,7 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [visible, selectedIndex, flatCommands, onClose]);
+  }, [visible, selectedIndex, flatCommands, onClose, handleCommandSelect]);
 
   // 点击外部关闭
   useEffect(() => {
@@ -419,14 +427,6 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
       inputRef.current.focus();
     }
   }, [visible]);
-
-  // 处理命令选择
-  const handleCommandSelect = (command: SlashCommandItem) => {
-    onSelect(command);
-    command.action();
-    onClose();
-    return true;
-  };
 
   // 类别标题映射
   const categoryTitles = {

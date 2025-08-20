@@ -1,35 +1,48 @@
 'use client';
 
 import React, { useState, useCallback, useRef } from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import { antdTheme } from '@/lib/antd-config';
-import { FeishuDocumentEditor } from '@/components/editor';
 import { DocumentEditorData } from '@/types/editor';
 import { OutputData } from '@editorjs/editorjs';
+import dynamic from 'next/dynamic';
+
+// 动态导入编辑器组件，确保只在客户端加载
+const FeishuDocumentEditor = dynamic(
+  () => import('@/components/editor').then(mod => ({ default: mod.FeishuDocumentEditor })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="ao-flex ao-items-center ao-justify-center ao-h-screen">
+        <Spin size="large" tip="加载编辑器中..." />
+      </div>
+    )
+  }
+);
 
 /**
- * 飞书风格编辑器页面
+ * AO风格编辑器页面
  * 展示重新设计的专业文档编辑体验
  */
 export default function FeishuEditorPage() {
   // 使用 ref 存储文档数据，避免状态更新导致重新渲染
   const documentDataRef = useRef<DocumentEditorData>({
     documentId: 'feishu-demo-001',
-    title: '🚀 Aokiz Docx 飞书风格编辑器',
+    title: '🚀 Aokiz Docx AO风格编辑器',
     content: {
       time: Date.now(),
       blocks: [
         {
           type: 'header',
           data: {
-            text: '欢迎使用飞书风格文档编辑器',
+            text: '欢迎使用AO风格文档编辑器',
             level: 1
           }
         },
         {
           type: 'paragraph',
           data: {
-            text: '这是一个重新设计的专业文档编辑器，采用飞书风格的界面设计和交互体验。我们已经解决了焦点丢失问题，现在可以流畅地进行编辑。'
+            text: '这是一个重新设计的专业文档编辑器，采用AO风格的界面设计和交互体验。我们已经解决了焦点丢失问题，现在可以流畅地进行编辑。'
           }
         },
         {
@@ -69,7 +82,7 @@ export default function FeishuEditorPage() {
                 checked: true
               },
               {
-                text: '重新设计了飞书风格的界面布局',
+                text: '重新设计了AO风格的界面布局',
                 checked: true
               },
               {
@@ -152,13 +165,13 @@ export default function FeishuEditorPage() {
       
       // 模拟保存到服务器
       // eslint-disable-next-line no-console
-      console.log('保存飞书风格文档:', documentDataRef.current);
+      console.log('保存AO风格文档:', documentDataRef.current);
       
       // 模拟网络延迟
       await new Promise(resolve => setTimeout(resolve, 800));
       
       // eslint-disable-next-line no-console
-      console.log('飞书风格文档保存成功');
+      console.log('AO风格文档保存成功');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('保存失败:', error);

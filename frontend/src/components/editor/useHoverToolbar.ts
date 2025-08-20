@@ -26,7 +26,7 @@ export interface UseHoverToolbarResult {
  */
 export const useHoverToolbar = ({
   editorInstance,
-  plugins = [],
+  plugins: _plugins = [],
   delay = 500,
   hideDelay = 200,
   enabled = true
@@ -109,13 +109,13 @@ export const useHoverToolbar = ({
     lastHoveredBlock.current = null;
   }, []);
 
-  // 检查元素是否为编辑器块
-  const isEditorBlock = useCallback((element: HTMLElement): boolean => {
-    // EditorJS 块通常有这些类名或特征
-    return element.classList.contains('ce-block') ||
-           element.classList.contains('ce-block__content') ||
-           element.closest('.ce-block') !== null;
-  }, []);
+  // 检查元素是否为编辑器块（暂时注释，等待后续使用）
+  // const _isEditorBlock = useCallback((element: HTMLElement): boolean => {
+  //   // EditorJS 块通常有这些类名或特征
+  //   return element.classList.contains('ce-block') ||
+  //          element.classList.contains('ce-block__content') ||
+  //          element.closest('.ce-block') !== null;
+  // }, []);
 
   // 获取块元素
   const getBlockElement = useCallback((element: HTMLElement): HTMLElement | null => {
@@ -204,7 +204,7 @@ export const useHoverToolbar = ({
       }
     };
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleMouseMove = (_event: MouseEvent) => {
       if (currentHoveredBlock) {
         const { x, y } = calculateToolbarPosition(currentHoveredBlock);
         updatePosition(x, y);
@@ -228,7 +228,7 @@ export const useHoverToolbar = ({
     window.addEventListener('scroll', handleScroll, true);
 
     // 监听键盘事件，隐藏工具栏
-    const handleKeydown = (event: KeyboardEvent) => {
+    const handleKeydown = (_event: KeyboardEvent) => {
       if (isToolbarVisible) {
         hideImmediately();
       }

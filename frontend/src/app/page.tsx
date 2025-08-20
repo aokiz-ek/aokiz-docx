@@ -82,15 +82,15 @@ export default function Home() {
                   actions={[
                     <Link key="start" href="/editor/feishu">
                       <Button type="primary" icon={<EditOutlined />}>
-                        飞书风格编辑器
+                        AO风格编辑器
                       </Button>
                     </Link>
                   ]}
                 >
                   <FileTextOutlined className="ao-text-4xl ao-text-primary ao-mb-4" />
-                  <Title level={4}>飞书风格编辑</Title>
+                  <Title level={4}>AO风格编辑</Title>
                   <Paragraph>
-                    专业的飞书风格文档编辑器，流畅的编辑体验，无焦点丢失问题
+                    专业的AO风格文档编辑器，流畅的编辑体验，无焦点丢失问题
                   </Paragraph>
                 </Card>
 
@@ -168,7 +168,7 @@ export default function Home() {
                   <Space size="large">
                     <Link href="/editor/feishu">
                       <Button type="primary" size="large" icon={<PlusOutlined />}>
-                        飞书风格编辑器
+                        AO风格编辑器
                       </Button>
                     </Link>
                     <Link href="/editor">

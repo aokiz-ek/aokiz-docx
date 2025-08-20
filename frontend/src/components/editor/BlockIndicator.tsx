@@ -24,8 +24,8 @@ export interface BlockIndicatorProps {
   position: BlockIndicatorPosition;
   blockType: string;
   blockElement?: HTMLElement;
-  editorInstance?: any;
-  onAction?: (action: string, params?: any) => void;
+  editorInstance?: unknown;
+  onAction?: (action: string, params?: unknown) => void;
   className?: string;
 }
 
@@ -38,7 +38,7 @@ export const BlockIndicator: React.FC<BlockIndicatorProps> = ({
   position,
   blockType,
   blockElement,
-  editorInstance,
+  editorInstance: _editorInstance,
   onAction,
   className = ''
 }) => {

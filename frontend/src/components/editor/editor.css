@@ -1,5 +1,5 @@
 /* 
- * 飞书文档风格的 EditorJS 样式
+ * AO文档风格的 EditorJS 样式
  * 基于 ao- 前缀的 Tailwind CSS 系统
  */
 
@@ -13,7 +13,7 @@
   background: var(--bg-color, #ffffff);
 }
 
-/* === 飞书风格编辑器特定样式 === */
+/* === AO风格编辑器特定样式 === */
 .feishu-editor .codex-editor {
   border: none;
   box-shadow: none;
@@ -25,7 +25,7 @@
   min-height: 500px;
 }
 
-/* === 飞书风格特定优化 === */
+/* === AO风格特定优化 === */
 .feishu-editor .ce-block {
   max-width: none;
 }
@@ -107,7 +107,7 @@
   transition: all 0.15s ease;
 }
 
-/* 块级元素悬浮效果 - 飞书风格 */
+/* 块级元素悬浮效果 - AO风格 */
 .ce-block:hover {
   background-color: var(--block-hover-color, #f8f9fa);
 }
@@ -158,7 +158,7 @@
   border-color: var(--primary-color, #3370ff);
 }
 
-/* === 内联工具栏 - 飞书风格 === */
+/* === 内联工具栏 - AO风格 === */
 .ce-inline-toolbar {
   background: var(--inline-toolbar-bg, #ffffff);
   border: 1px solid var(--border-color, #e7e9e8);
@@ -244,7 +244,7 @@
   pointer-events: none;
 }
 
-/* === 标题样式 - 飞书风格 === */
+/* === 标题样式 - AO风格 === */
 .ce-header {
   margin: 0;
   padding: 0;
@@ -324,7 +324,7 @@
   color: var(--text-color, #1f2329);
 }
 
-/* === 引用样式 - 飞书风格 === */
+/* === 引用样式 - AO风格 === */
 .cdx-quote {
   margin: 16px 0;
   padding: 16px 20px;
@@ -1999,7 +1999,7 @@
   }
 }
 
-/* === 飞书三栏布局样式 === */
+/* === AO三栏布局样式 === */
 
 /* 主容器 */
 .feishu-editor-container {

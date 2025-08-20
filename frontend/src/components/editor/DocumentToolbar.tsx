@@ -51,13 +51,13 @@ const { Text } = Typography;
 const { TextArea } = Input;
 
 export interface DocumentToolbarProps {
-  editorInstance?: any;
-  onCommand?: (command: string, params?: any) => void;
+  editorInstance?: unknown;
+  onCommand?: (command: string, params?: unknown) => void;
   className?: string;
 }
 
 /**
- * 飞书风格的文档工具栏
+ * AO风格的文档工具栏
  * 提供丰富的文档编辑功能
  */
 export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
@@ -206,18 +206,19 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
   ];
 
   // 插入块的函数
-  const insertBlock = async (type: string, data: any) => {
-    if (!editorInstance) return;
+  const insertBlock = async (type: string, data: unknown) => {
+    if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
 
     try {
-      const currentBlock = editorInstance.blocks.getCurrentBlockIndex();
-      await editorInstance.blocks.insert(type, data, {}, currentBlock + 1);
+      const editor = editorInstance as any;
+      const currentBlock = editor.blocks.getCurrentBlockIndex();
+      await editor.blocks.insert(type, data, {}, currentBlock + 1);
       setTimeout(() => {
-        editorInstance.caret.setToBlock(currentBlock + 1);
+        editor.caret.setToBlock(currentBlock + 1);
       }, 100);
       message.success(`已插入${type}`);
-    } catch (error) {
-      console.error('插入块失败:', error);
+    } catch {
+      // 插入块失败处理
       message.error('插入失败');
     }
   };
@@ -239,8 +240,8 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
           title: '新建文档',
           content: '确定要创建新文档吗？当前未保存的内容可能会丢失。',
           onOk: () => {
-            if (editorInstance) {
-              editorInstance.clear();
+            if (editorInstance && typeof editorInstance === 'object' && 'clear' in editorInstance) {
+              (editorInstance as any).clear();
               message.success('已创建新文档');
             }
           }
@@ -259,8 +260,8 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
             reader.onload = (e) => {
               try {
                 const content = JSON.parse(e.target?.result as string);
-                if (editorInstance) {
-                  editorInstance.render(content);
+                if (editorInstance && typeof editorInstance === 'object' && 'render' in editorInstance) {
+                  (editorInstance as any).render(content);
                   message.success('文档已加载');
                 }
               } catch {
@@ -274,8 +275,8 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
         break;
         
       case 'save':
-        if (editorInstance) {
-          editorInstance.save().then((data: any) => {
+        if (editorInstance && typeof editorInstance === 'object' && 'save' in editorInstance) {
+          (editorInstance as any).save().then((data: unknown) => {
             const blob = new Blob([JSON.stringify(data, null, 2)], {
               type: 'application/json'
             });
@@ -291,27 +292,28 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
         break;
         
       case 'export':
-        if (editorInstance) {
-          editorInstance.save().then((data: any) => {
+        if (editorInstance && typeof editorInstance === 'object' && 'save' in editorInstance) {
+          (editorInstance as any).save().then((data: { blocks: Array<{ type: string; data: unknown }> }) => {
             // 转换为纯文本
-            const textContent = data.blocks.map((block: any) => {
+            const textContent = data.blocks.map((block: { type: string; data: unknown }) => {
+              const blockData = block.data as any; // 临时类型断言处理
               switch (block.type) {
                 case 'header':
-                  return '#'.repeat(block.data.level) + ' ' + block.data.text;
+                  return '#'.repeat(blockData.level || 1) + ' ' + (blockData.text || '');
                 case 'paragraph':
-                  return block.data.text;
+                  return blockData.text || '';
                 case 'list':
-                  return block.data.items.map((item: string, index: number) => 
-                    block.data.style === 'ordered' 
+                  return (blockData.items || []).map((item: string, index: number) => 
+                    blockData.style === 'ordered' 
                       ? `${index + 1}. ${item}`
                       : `• ${item}`
                   ).join('\n');
                 case 'quote':
-                  return `> ${block.data.text}`;
+                  return `> ${blockData.text || ''}`;
                 case 'code':
-                  return `\`\`\`\n${block.data.code}\n\`\`\``;
+                  return `\`\`\`\n${blockData.code || ''}\n\`\`\``;
                 default:
-                  return block.data.text || '';
+                  return blockData.text || '';
               }
             }).join('\n\n');
             
@@ -389,7 +391,7 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
 
   return (
     <div className={`ao-bg-white ao-border-b ao-border-gray-100 ao-shadow-sm ${className}`}>
-      {/* 主工具栏 - 飞书风格精简设计 */}
+      {/* 主工具栏 - AO风格精简设计 */}
       <div className="ao-flex ao-items-center ao-px-4 ao-py-2 ao-space-x-1">
         
         {/* 撤销重做 */}

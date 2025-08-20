@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Dropdown, Space, Divider } from 'antd';
 import { 
   PlusOutlined,
@@ -22,8 +22,8 @@ export interface ToolbarPosition {
 export interface EditorJSToolbarProps {
   plusButtonPosition: ToolbarPosition;
   inlineToolbarPosition: ToolbarPosition;
-  editorInstance?: any;
-  onInsertBlock?: (type: string, data?: any) => void;
+  editorInstance?: unknown;
+  onInsertBlock?: (type: string, data?: unknown) => void;
   onFormatText?: (format: string) => void;
   className?: string;
 }
@@ -35,7 +35,7 @@ export interface EditorJSToolbarProps {
 export const EditorJSToolbar: React.FC<EditorJSToolbarProps> = ({
   plusButtonPosition,
   inlineToolbarPosition,
-  editorInstance,
+  editorInstance: _editorInstance,
   onInsertBlock,
   onFormatText,
   className = ''

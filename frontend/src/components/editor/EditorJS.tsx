@@ -5,10 +5,11 @@ import EditorJS, { OutputData } from '@editorjs/editorjs';
 import { EditorJSProps, EditorJSRef } from '@/types/editor';
 import SlashCommand from './SlashCommand';
 import { useSlashCommand } from './useSlashCommand';
-import HoverToolbar from './HoverToolbar';
-import { useHoverToolbar } from './useHoverToolbar';
-import { hoverToolbarPluginManager, registerDefaultPlugins, pluginPresets } from './HoverToolbarPlugins';
-import { DebugHoverToolbar } from './DebugHoverToolbar';
+// 悬浮工具栏相关导入（已注释，等待后续启用）
+// import HoverToolbar from './HoverToolbar';
+// import { useHoverToolbar } from './useHoverToolbar';
+// import { hoverToolbarPluginManager, registerDefaultPlugins, pluginPresets } from './HoverToolbarPlugins';
+// import { DebugHoverToolbar } from './DebugHoverToolbar';
 import EditorJSToolbar from './EditorJSToolbar';
 import { useEditorJSToolbar } from './useEditorJSToolbar';
 
@@ -36,6 +37,7 @@ import Checklist from '@editorjs/checklist';
 import Underline from '@editorjs/underline';
 // @ts-expect-error - 类型兼容性问题
 import TextColor from 'editorjs-text-color-plugin';
+// @ts-expect-error - 类型兼容性问题
 import AttachesTool from '@editorjs/attaches';
 // @ts-expect-error - 类型兼容性问题
 import Button from 'editorjs-button';
@@ -58,7 +60,7 @@ import Tooltip from 'editorjs-tooltip';
 
 /**
  * EditorJS 组件封装
- * 提供类似飞书文档的编辑体验
+ * 提供类似AO文档的编辑体验
  */
 const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   value,
@@ -71,7 +73,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   autoFocus = false,
   tools,
   enableHoverToolbar = true,
-  hoverToolbarPlugins = 'basic'
+  hoverToolbarPlugins: _hoverToolbarPlugins = 'basic'
 }, ref) => {
   const editorRef = useRef<EditorJS | null>(null);
   const holderRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
 
   // 合并工具配置
   const mergedTools = useMemo(() => {
-    // 默认工具配置 - 飞书风格
+    // 默认工具配置 - AO风格
     const defaultTools = {
       paragraph: {
         class: Paragraph,
@@ -337,16 +339,14 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
               setTimeout(() => {
                 isUserEditingRef.current = false;
               }, 100);
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.error('保存编辑器数据失败:', error);
+            } catch {
+              // 保存编辑器数据失败
               isUserEditingRef.current = false;
             }
           }
         },
         onReady: () => {
-          // eslint-disable-next-line no-console
-          console.log('EditorJS is ready to work!');
+          // EditorJS 已准备就绪
           isInitialized.current = true;
           if (onReady) onReady();
         }
@@ -358,22 +358,21 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       if (!readOnly) {
         try {
           new DragDrop(editor);
-          console.log('拖拽功能已启用');
-        } catch (error) {
-          console.warn('拖拽功能初始化失败:', error);
+          // 拖拽功能已启用
+        } catch {
+          // 拖拽功能初始化失败
         }
 
         // 初始化撤销功能
         try {
           new Undo({ editor, maxLength: 30 });
-          console.log('撤销功能已启用');
-        } catch (error) {
-          console.warn('撤销功能初始化失败:', error);
+          // 撤销功能已启用
+        } catch {
+          // 撤销功能初始化失败
         }
       }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('初始化 EditorJS 失败:', error);
+    } catch {
+      // 初始化 EditorJS 失败
     }
   }, [placeholder, readOnly, autoFocus, value, mergedTools, onChange, onReady]);
 
@@ -399,9 +398,8 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       if (editorRef.current && typeof editorRef.current.destroy === 'function') {
         try {
           editorRef.current.destroy();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn('编辑器销毁失败:', error);
+        } catch {
+          // 编辑器销毁失败
         }
         editorRef.current = null;
         isInitialized.current = false;
@@ -420,9 +418,8 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       if (editorRef.current && typeof editorRef.current.destroy === 'function') {
         try {
           editorRef.current.destroy();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn('编辑器销毁失败:', error);
+        } catch {
+          // 编辑器销毁失败
         }
         editorRef.current = null;
         isInitialized.current = false;
@@ -444,9 +441,8 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       lastValueRef.current = value;
       initialRenderDoneRef.current = true;
       
-      editorRef.current.render(value).catch(error => {
-        // eslint-disable-next-line no-console
-        console.error('渲染编辑器内容失败:', error);
+      editorRef.current.render(value).catch(() => {
+        // 渲染编辑器内容失败
       });
     }
     
@@ -464,8 +460,8 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   const { 
     plusButtonPosition, 
     inlineToolbarPosition, 
-    currentBlock: toolbarBlock, 
-    selectedText 
+    currentBlock: _toolbarBlock, 
+    selectedText: _selectedText 
   } = useEditorJSToolbar({
     editorInstance: editorRef.current,
     enabled: enableHoverToolbar && !readOnly,
@@ -476,26 +472,26 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   // 初始化插件系统
   useEffect(() => {
     if (enableHoverToolbar) {
-      registerDefaultPlugins();
+      // registerDefaultPlugins(); // 暂时注释，等待悬浮工具栏完整实现
     }
   }, [enableHoverToolbar]);
 
-  // 获取插件配置
-  const getHoverToolbarPlugins = useCallback(() => {
-    if (Array.isArray(hoverToolbarPlugins)) {
-      return hoverToolbarPlugins;
-    }
-    
-    switch (hoverToolbarPlugins) {
-      case 'advanced':
-        return pluginPresets.advanced;
-      case 'full':
-        return pluginPresets.full;
-      case 'basic':
-      default:
-        return pluginPresets.basic;
-    }
-  }, [hoverToolbarPlugins]);
+  // 获取插件配置（暂时注释，等待悬浮工具栏完整实现）
+  // const _getHoverToolbarPlugins = useCallback(() => {
+  //   if (Array.isArray(hoverToolbarPlugins)) {
+  //     return hoverToolbarPlugins;
+  //   }
+  //   
+  //   switch (hoverToolbarPlugins) {
+  //     case 'advanced':
+  //       return pluginPresets.advanced;
+  //     case 'full':
+  //       return pluginPresets.full;
+  //     case 'basic':
+  //     default:
+  //       return pluginPresets.basic;
+  //   }
+  // }, [hoverToolbarPlugins]);
 
   // 处理块插入
   const handleInsertBlock = useCallback(async (type: string, data?: any) => {
@@ -507,12 +503,14 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       
       // 设置焦点到新块
       setTimeout(() => {
-        editorRef.current.caret.setToBlock(currentIndex + 1);
+        if (editorRef.current) {
+          editorRef.current.caret.setToBlock(currentIndex + 1);
+        }
       }, 100);
       
-      console.log('EditorJS: Block inserted', { type, data });
-    } catch (error) {
-      console.error('Insert block failed:', error);
+      // EditorJS: Block inserted
+    } catch {
+      // Insert block failed
     }
   }, []);
 
@@ -521,7 +519,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
     // 这里可以实现内联格式化逻辑
     // 由于 EditorJS 的内联工具通常由工具本身处理，
     // 我们主要是触发相应的格式化命令
-    console.log('EditorJS: Format text', { format, selectedText });
+    // EditorJS: Format text
     
     // 可以根据格式类型执行不同的操作
     switch (format) {
@@ -540,13 +538,14 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
         }
         break;
     }
-  }, [selectedText]);
+  }, []);
 
   // 清理定时器
   useEffect(() => {
+    const currentTimer = debounceTimerRef.current;
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+      if (currentTimer) {
+        clearTimeout(currentTimer);
       }
     };
   }, []);
@@ -558,9 +557,8 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       if (typeof editorRef.current.destroy === 'function') {
         try {
           editorRef.current.destroy();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn('编辑器重新初始化时销毁失败:', error);
+        } catch {
+          // 编辑器重新初始化时销毁失败
         }
       }
       editorRef.current = null;

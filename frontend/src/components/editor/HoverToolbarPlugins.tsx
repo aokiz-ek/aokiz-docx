@@ -6,12 +6,12 @@ import {
   WarningOutlined,
   BulbOutlined,
   AlertOutlined,
-  FileTextOutlined,
+  // FileTextOutlined,
   CalendarOutlined,
-  TagOutlined,
-  EyeOutlined,
+  // TagOutlined,
+  // EyeOutlined,
   EyeInvisibleOutlined,
-  SpoilerOutlined,
+  // SpoilerOutlined,
   BookOutlined,
   StarOutlined,
   HeartOutlined,
@@ -124,9 +124,10 @@ export const alertPlugins: HoverToolbarPlugin[] = [
     title: '信息提示',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('alert', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('alert', {
         type: 'info',
         message: '这是一条信息提示'
       }, {}, currentIndex + 1);
@@ -139,9 +140,10 @@ export const alertPlugins: HoverToolbarPlugin[] = [
     title: '警告提示',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('alert', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('alert', {
         type: 'warning',
         message: '这是一条警告提示'
       }, {}, currentIndex + 1);
@@ -154,9 +156,10 @@ export const alertPlugins: HoverToolbarPlugin[] = [
     title: '危险提示',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('alert', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('alert', {
         type: 'danger',
         message: '这是一条危险提示'
       }, {}, currentIndex + 1);
@@ -173,9 +176,10 @@ export const contentPlugins: HoverToolbarPlugin[] = [
     title: '隐藏内容',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('spoiler', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('spoiler', {
         title: '点击查看隐藏内容',
         message: '这里是隐藏的内容'
       }, {}, currentIndex + 1);
@@ -188,9 +192,10 @@ export const contentPlugins: HoverToolbarPlugin[] = [
     title: '工具提示',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('tooltip', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('tooltip', {
         text: '悬停查看提示',
         tooltip: '这是工具提示内容'
       }, {}, currentIndex + 1);
@@ -203,9 +208,10 @@ export const contentPlugins: HoverToolbarPlugin[] = [
     title: '折叠面板',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('toggle', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('toggle', {
         title: '点击展开/折叠',
         content: '这里是折叠的内容'
       }, {}, currentIndex + 1);
@@ -222,9 +228,10 @@ export const decorativePlugins: HoverToolbarPlugin[] = [
     title: '星形分割线',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('delimiter', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('delimiter', {
         style: 'star'
       }, {}, currentIndex + 1);
       message.success('已插入星形分割线');
@@ -236,9 +243,10 @@ export const decorativePlugins: HoverToolbarPlugin[] = [
     title: '心形分割线',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('delimiter', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('delimiter', {
         style: 'heart'
       }, {}, currentIndex + 1);
       message.success('已插入心形分割线');
@@ -254,9 +262,10 @@ export const advancedPlugins: HoverToolbarPlugin[] = [
     title: '多列布局',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('columns', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('columns', {
         cols: [
           { blocks: [] },
           { blocks: [] }
@@ -271,9 +280,10 @@ export const advancedPlugins: HoverToolbarPlugin[] = [
     title: '按钮',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('button', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('button', {
         text: '点击按钮',
         link: '#',
         style: 'primary'
@@ -287,9 +297,10 @@ export const advancedPlugins: HoverToolbarPlugin[] = [
     title: '高级嵌入',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.insert('embed', {
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.insert('embed', {
         service: 'custom',
         source: '',
         embed: '',
@@ -309,8 +320,9 @@ export const templatePlugins: HoverToolbarPlugin[] = [
     title: '会议记录模板',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
       
       // 插入会议记录模板
       const template = [
@@ -326,7 +338,7 @@ export const templatePlugins: HoverToolbarPlugin[] = [
 
       template.forEach((block, index) => {
         setTimeout(() => {
-          editorInstance.blocks.insert(block.type, block.data, {}, currentIndex + index + 1);
+          editor.blocks.insert(block.type, block.data, {}, currentIndex + index + 1);
         }, index * 100);
       });
 
@@ -339,8 +351,9 @@ export const templatePlugins: HoverToolbarPlugin[] = [
     title: '项目计划模板',
     group: 'custom',
     action: (editorInstance) => {
-      if (!editorInstance) return;
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
+      if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
       
       const template = [
         { type: 'header', data: { text: '项目计划', level: 2 } },
@@ -354,7 +367,7 @@ export const templatePlugins: HoverToolbarPlugin[] = [
 
       template.forEach((block, index) => {
         setTimeout(() => {
-          editorInstance.blocks.insert(block.type, block.data, {}, currentIndex + index + 1);
+          editor.blocks.insert(block.type, block.data, {}, currentIndex + index + 1);
         }, index * 100);
       });
 

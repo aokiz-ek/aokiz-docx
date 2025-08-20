@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button, Space, Tooltip, Dropdown, Divider } from 'antd';
 import {
-  BoldOutlined,
-  ItalicOutlined,
-  UnderlineOutlined,
-  HighlightOutlined,
-  FontColorsOutlined,
+  // BoldOutlined,
+  // ItalicOutlined,
+  // UnderlineOutlined,
+  // HighlightOutlined,
+  // FontColorsOutlined,
   LinkOutlined,
   PictureOutlined,
   TableOutlined,
@@ -33,17 +33,17 @@ export interface HoverToolbarPlugin {
   id: string;
   icon: React.ReactNode;
   title: string;
-  action: (editorInstance: any, blockElement: HTMLElement) => void;
+  action: (editorInstance: unknown, blockElement: HTMLElement) => void;
   shortcut?: string;
   group?: 'format' | 'insert' | 'block' | 'custom';
 }
 
 export interface HoverToolbarProps {
-  editorInstance?: any;
+  editorInstance?: unknown;
   position: HoverToolbarPosition;
   currentBlock?: HTMLElement;
   plugins?: HoverToolbarPlugin[];
-  onAction?: (action: string, params?: any) => void;
+  onAction?: (action: string, params?: unknown) => void;
   className?: string;
 }
 
@@ -173,50 +173,55 @@ export const HoverToolbar: React.FC<HoverToolbarProps> = ({
   };
 
   // 插入新块
-  const insertBlock = useCallback(async (type: string, data: any) => {
-    if (!editorInstance) return;
+  const insertBlock = useCallback(async (type: string, data: unknown) => {
+    if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
 
     try {
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      await editorInstance.blocks.insert(type, data, {}, currentIndex + 1);
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      await editor.blocks.insert(type, data, {}, currentIndex + 1);
       
       // 设置焦点到新块
       setTimeout(() => {
-        editorInstance.caret.setToBlock(currentIndex + 1);
+        if (editor.caret) {
+          editor.caret.setToBlock(currentIndex + 1);
+        }
       }, 100);
 
       onAction?.('insert', { type, data });
-    } catch (error) {
-      console.error('插入块失败:', error);
+    } catch {
+      // 插入块失败
     }
   }, [editorInstance, onAction]);
 
   // 复制当前块
   const copyBlock = useCallback(async () => {
-    if (!editorInstance) return;
+    if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
 
     try {
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      const currentBlock = editorInstance.blocks.getBlockByIndex(currentIndex);
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      const currentBlock = editor.blocks.getBlockByIndex(currentIndex);
       const blockData = await currentBlock.save();
       
-      await editorInstance.blocks.insert(blockData.tool, blockData.data, {}, currentIndex + 1);
+      await editor.blocks.insert(blockData.tool, blockData.data, {}, currentIndex + 1);
       onAction?.('copy');
-    } catch (error) {
-      console.error('复制块失败:', error);
+    } catch {
+      // 复制块失败
     }
   }, [editorInstance, onAction]);
 
   // 删除当前块
   const deleteBlock = useCallback(async () => {
-    if (!editorInstance) return;
+    if (!editorInstance || typeof editorInstance !== 'object' || !('blocks' in editorInstance)) return;
 
     try {
-      const currentIndex = editorInstance.blocks.getCurrentBlockIndex();
-      editorInstance.blocks.delete(currentIndex);
+      const editor = editorInstance as any;
+      const currentIndex = editor.blocks.getCurrentBlockIndex();
+      editor.blocks.delete(currentIndex);
       onAction?.('delete');
-    } catch (error) {
-      console.error('删除块失败:', error);
+    } catch {
+      // 删除块失败
     }
   }, [editorInstance, onAction]);
 
@@ -241,7 +246,6 @@ export const HoverToolbar: React.FC<HoverToolbarProps> = ({
     const { x, y } = position;
     const { width, height } = toolbarSize;
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
 
     // 计算最佳位置
     let finalX = x - width / 2;
