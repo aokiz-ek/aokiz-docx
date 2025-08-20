@@ -1,3 +1,6 @@
+/* Google Fonts - 直接导入，避免 Turbopack 兼容性问题 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 @import "../components/editor/editor.css";
 @tailwind base;
 @tailwind components;
@@ -66,8 +69,8 @@
   --color-error: var(--error);
   
   /* 字体 */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   
   /* 阴影 */
   --shadow-page: var(--page-shadow);
@@ -105,8 +108,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
+  font-feature-settings: 'cv11', 'ss01';
+  font-variation-settings: 'opsz' 14;
 }
 
 /* 编辑器页面样式 */

@@ -179,6 +179,8 @@ export interface EditorJSProps {
   minHeight?: number;
   autoFocus?: boolean;
   tools?: Record<string, any>;
+  enableHoverToolbar?: boolean;
+  hoverToolbarPlugins?: 'basic' | 'advanced' | 'full' | any[];
 }
 
 export interface EditorJSRef {

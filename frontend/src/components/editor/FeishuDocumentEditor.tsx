@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Input, Typography, Button, Space, Tooltip, Divider, message, Avatar, Dropdown } from 'antd';
 import { 
   SaveOutlined, 
   ShareAltOutlined, 
   MoreOutlined,
-  EyeOutlined,
   EditOutlined,
-  UserOutlined,
   ClockCircleOutlined,
   CommentOutlined,
   HistoryOutlined,
@@ -17,14 +15,27 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   DownloadOutlined,
-  PrinterOutlined
+  PrinterOutlined,
+  HomeOutlined,
+  FileTextOutlined,
+  CloudOutlined,
+  BookOutlined,
+  TeamOutlined,
+  SearchOutlined,
+  UserOutlined,
+  FolderOutlined,
+  SyncOutlined,
+  PlusOutlined,
+  RightOutlined,
+  LeftOutlined
 } from '@ant-design/icons';
 import { OutputData } from '@editorjs/editorjs';
 import EditorJS from './EditorJS';
+import DocumentToolbar from './DocumentToolbar';
 import { EditorJSRef, DocumentEditorData } from '@/types/editor';
 import './editor.css';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export interface FeishuDocumentEditorProps {
   document?: DocumentEditorData;
@@ -33,11 +44,33 @@ export interface FeishuDocumentEditorProps {
   onContentChange?: (content: OutputData) => void;
   readOnly?: boolean;
   className?: string;
+  enableHoverToolbar?: boolean;
+  hoverToolbarPlugins?: 'basic' | 'advanced' | 'full' | any[];
 }
 
+// 生成协作者颜色
+const generateUserColor = (name: string): string => {
+  const hash = name.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, 60%, 50%)`;
+};
+
+// 导航菜单项
+const navigationItems = [
+  { key: 'home', icon: <HomeOutlined />, label: '主页', active: false },
+  { key: 'documents', icon: <FileTextOutlined />, label: '我的文档', active: true },
+  { key: 'cloud', icon: <CloudOutlined />, label: '云盘', active: false },
+  { key: 'knowledge', icon: <BookOutlined />, label: '知识库', active: false },
+  { key: 'team', icon: <TeamOutlined />, label: '团队空间', active: false },
+  { key: 'recent', icon: <ClockCircleOutlined />, label: '最近访问', active: false },
+];
+
 /**
- * 飞书风格文档编辑器 - 重新设计版本
- * 专业的文档编辑体验，解决焦点丢失和布局问题
+ * 飞书风格文档编辑器 - 专业三栏布局设计
+ * 左侧导航栏 + 中央编辑区 + 右侧协作面板
  */
 const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
   document,
@@ -45,61 +78,73 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
   onTitleChange,
   onContentChange,
   readOnly = false,
-  className = ''
+  className = '',
+  enableHoverToolbar = true,
+  hoverToolbarPlugins = 'advanced'
 }) => {
-  const [title, setTitle] = useState(document?.title || '无标题文档');
-  const [content, setContent] = useState<OutputData | undefined>(document?.content);
+  // 核心数据管理
+  const titleRef = useRef(document?.title || '无标题文档');
+  const contentRef = useRef<OutputData | undefined>(document?.content);
+  
+  // UI 状态管理
+  const [displayTitle, setDisplayTitle] = useState(document?.title || '无标题文档');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(document?.lastModified || null);
+  const lastSavedRef = useRef<Date | null>(document?.lastModified || null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [showCollaborationPanel, setShowCollaborationPanel] = useState(false);
+  const [showCollaborationPanel, setShowCollaborationPanel] = useState(true);
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   
   const editorRef = useRef<EditorJSRef>(null);
 
   // 处理标题变更
   const handleTitleChange = (newTitle: string) => {
-    setTitle(newTitle);
+    titleRef.current = newTitle;
+    setDisplayTitle(newTitle);
     if (onTitleChange) {
       onTitleChange(newTitle);
     }
   };
 
-  // 处理内容变更 - 防止焦点丢失
+  // 处理内容变更
   const handleContentChange = useCallback((newContent: OutputData) => {
-    // 立即更新本地状态以保持编辑器响应性
-    setContent(newContent);
-    
-    // 使用防抖延迟通知父组件，避免频繁重新渲染导致焦点丢失
+    contentRef.current = newContent;
     if (onContentChange) {
-      // 这里不应该返回清理函数，而是在外部管理防抖
       onContentChange(newContent);
     }
   }, [onContentChange]);
 
   // 处理保存
   const handleSave = useCallback(async (showMessage = true) => {
-    if (!onSave || !content) return;
+    if (!onSave) return;
 
     try {
       setIsSaving(true);
       
+      const currentContent = contentRef.current;
+      const currentTitle = titleRef.current;
+      
+      if (!currentContent) return;
+      
       const documentData: DocumentEditorData = {
         documentId: document?.documentId || 'new',
-        title,
-        content,
+        title: currentTitle,
+        content: currentContent,
         lastModified: new Date(),
         owner: document?.owner || 'current-user',
         collaborators: document?.collaborators || []
       };
 
       await onSave(documentData);
-      setLastSaved(new Date());
+      
+      const now = new Date();
+      lastSavedRef.current = now;
       
       if (showMessage) {
+        setLastSaved(now);
         message.success('文档已保存');
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('保存失败:', error);
       if (showMessage) {
         message.error('保存失败，请重试');
@@ -107,26 +152,27 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
     } finally {
       setIsSaving(false);
     }
-  }, [onSave, content, title, document?.documentId, document?.owner, document?.collaborators]);
+  }, [onSave, document?.documentId, document?.owner, document?.collaborators]);
 
-  // 自动保存功能
+  // 编辑器内容
+  const editorContent = useMemo(() => contentRef.current, []);
+
+  // 自动保存
   useEffect(() => {
+    if (readOnly) return;
+    
     const autoSaveTimer = setInterval(async () => {
-      if (!readOnly && onSave && (content || title !== document?.title)) {
+      if (!readOnly && onSave && contentRef.current) {
         await handleSave(false);
       }
-    }, 30000); // 30秒自动保存
+    }, 300000);
 
     return () => clearInterval(autoSaveTimer);
-  }, [content, title, readOnly, onSave, document?.title, handleSave]);
-
-  // 处理分享
-  const handleShare = () => {
-    message.info('分享功能开发中');
-  };
+  }, [readOnly, onSave, handleSave]);
 
   // 格式化最后保存时间
-  const formatLastSaved = (date: Date | null) => {
+  const formatLastSaved = useCallback(() => {
+    const date = lastSavedRef.current || lastSaved;
     if (!date) return '未保存';
     
     const now = new Date();
@@ -140,7 +186,7 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
     if (hours < 24) return `${hours}小时前保存`;
     
     return date.toLocaleDateString();
-  };
+  }, [lastSaved]);
 
   // 更多操作菜单
   const moreMenuItems = [
@@ -161,68 +207,194 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
     }
   ];
 
+  // 最近活动数据（模拟）
+  const recentActivities = [
+    { type: 'edit', user: '张三', time: '2分钟前', content: '编辑了第3段落' },
+    { type: 'comment', user: '李四', time: '5分钟前', content: '添加了评论' },
+    { type: 'save', user: '王五', time: '10分钟前', content: '保存了文档' },
+  ];
+
+  // 版本历史数据（模拟）
+  const versionHistory = [
+    { version: 'v1.3', time: '刚刚', author: '张三' },
+    { version: 'v1.2', time: '1小时前', author: '李四' },
+    { version: 'v1.1', time: '昨天', author: '王五' },
+  ];
+
   return (
-    <div className={`ao-flex ao-h-screen ao-bg-gray-50 ${className}`}>
+    <div className={`feishu-editor-container ${className}`}>
+      {/* 左侧导航栏 */}
+      <div className={`feishu-left-sidebar ${leftSidebarCollapsed ? 'collapsed' : ''}`}>
+        {/* 品牌区域 */}
+        <div className="sidebar-header">
+          <div className="brand-section">
+            <div className="brand-logo">
+              <FileTextOutlined className="logo-icon" />
+            </div>
+            {!leftSidebarCollapsed && (
+              <div className="brand-text">
+                <div className="brand-title">Aokiz Docx</div>
+                <div className="brand-subtitle">智能文档编辑</div>
+              </div>
+            )}
+          </div>
+          
+          <Button
+            type="text"
+            icon={leftSidebarCollapsed ? <RightOutlined /> : <LeftOutlined />}
+            size="small"
+            className="sidebar-toggle"
+            onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+          />
+        </div>
+
+        {/* 搜索栏 */}
+        {!leftSidebarCollapsed && (
+          <div className="sidebar-search">
+            <Input
+              placeholder="搜索文档..."
+              prefix={<SearchOutlined />}
+              className="search-input"
+              size="middle"
+            />
+          </div>
+        )}
+
+        {/* 导航菜单 */}
+        <div className="sidebar-navigation">
+          {navigationItems.map(item => (
+            <div
+              key={item.key}
+              className={`nav-item ${item.active ? 'active' : ''}`}
+            >
+              <div className="nav-icon">{item.icon}</div>
+              {!leftSidebarCollapsed && (
+                <span className="nav-label">{item.label}</span>
+              )}
+              {item.active && <div className="active-indicator" />}
+            </div>
+          ))}
+        </div>
+
+        {/* 快速操作 */}
+        {!leftSidebarCollapsed && (
+          <div className="sidebar-actions">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              className="create-button"
+              block
+            >
+              新建文档
+            </Button>
+          </div>
+        )}
+
+        {/* 用户信息 */}
+        <div className="sidebar-footer">
+          <div className="user-section">
+            <Avatar 
+              size={leftSidebarCollapsed ? 32 : 40}
+              className="user-avatar"
+              style={{ backgroundColor: '#1890ff' }}
+            >
+              U
+            </Avatar>
+            {!leftSidebarCollapsed && (
+              <div className="user-info">
+                <div className="user-name">当前用户</div>
+                <div className="user-status">在线</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* 主要内容区域 */}
-      <div className="ao-flex-1 ao-flex ao-flex-col ao-min-w-0">
-        
-        {/* 顶部工具栏 - 飞书风格 */}
-        <div className="ao-bg-white ao-border-b ao-border-gray-200 ao-px-6 ao-py-3 ao-flex ao-items-center ao-justify-between ao-h-16">
-          <div className="ao-flex ao-items-center ao-space-x-4 ao-flex-1">
-            {/* 文档标题 */}
-            <div className="ao-flex ao-items-center ao-space-x-2 ao-max-w-md">
+      <div className="feishu-main-content">
+        {/* 顶部工具栏 */}
+        <div className="feishu-header">
+          {/* 左侧区域 - 面包屑和标题 */}
+          <div className="header-left">
+            <div className="breadcrumb">
+              <span className="breadcrumb-item">
+                <FolderOutlined className="breadcrumb-icon" />
+                我的文档
+              </span>
+              <RightOutlined className="breadcrumb-separator" />
+              <span className="breadcrumb-item current">
+                {displayTitle}
+              </span>
+            </div>
+            
+            <div className="title-section">
               {isEditingTitle ? (
                 <Input
-                  value={title}
+                  value={displayTitle}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   onBlur={() => setIsEditingTitle(false)}
                   onPressEnter={() => setIsEditingTitle(false)}
-                  className="ao-text-lg ao-font-medium ao-border-none ao-shadow-none ao-bg-transparent"
-                  style={{ padding: '4px 0' }}
+                  className="title-input"
                   autoFocus
                   maxLength={100}
                 />
               ) : (
                 <div 
-                  className="ao-cursor-pointer ao-text-lg ao-font-medium ao-text-gray-900 hover:ao-text-blue-600 ao-py-1 ao-px-2 ao-rounded hover:ao-bg-gray-50 ao-transition-colors ao-truncate"
+                  className="title-display"
                   onClick={() => !readOnly && setIsEditingTitle(true)}
-                  title={title}
+                  title={displayTitle}
                 >
-                  {title}
+                  {displayTitle}
+                  {!readOnly && (
+                    <EditOutlined className="title-edit-icon" />
+                  )}
                 </div>
-              )}
-              
-              {!readOnly && !isEditingTitle && (
-                <Tooltip title="编辑标题">
-                  <Button
-                    type="text"
-                    icon={<EditOutlined />}
-                    size="small"
-                    onClick={() => setIsEditingTitle(true)}
-                    className="ao-text-gray-400 hover:ao-text-blue-600 ao-opacity-0 group-hover:ao-opacity-100 ao-transition-opacity"
-                  />
-                </Tooltip>
               )}
             </div>
 
-            {/* 保存状态 */}
-            <div className="ao-flex ao-items-center ao-space-x-2 ao-text-sm ao-text-gray-500">
-              <ClockCircleOutlined className="ao-w-4 ao-h-4" />
-              <span>{formatLastSaved(lastSaved)}</span>
+            <div className="save-status">
+              <span className={`save-indicator ${isSaving ? 'saving' : 'saved'}`}>
+                {isSaving ? <SyncOutlined spin /> : <ClockCircleOutlined />}
+              </span>
+              <span className="save-text">{formatLastSaved()}</span>
             </div>
           </div>
 
-          {/* 右侧操作区 */}
-          <div className="ao-flex ao-items-center ao-space-x-3">
+          {/* 中央区域 - 快捷操作 */}
+          <div className="header-center">
+            <Space size="small">
+              <Tooltip title="评论">
+                <Button
+                  type="text"
+                  icon={<CommentOutlined />}
+                  className="quick-action-btn"
+                />
+              </Tooltip>
+              
+              <Tooltip title="版本历史">
+                <Button
+                  type="text"
+                  icon={<HistoryOutlined />}
+                  className="quick-action-btn"
+                />
+              </Tooltip>
+            </Space>
+          </div>
+
+          {/* 右侧区域 - 协作者和主要操作 */}
+          <div className="header-right">
             {/* 协作者头像组 */}
             {document?.collaborators && document.collaborators.length > 0 && (
-              <div className="ao-flex ao-items-center ao--space-x-2">
+              <div className="collaborators-group">
                 {document.collaborators.slice(0, 3).map((collaborator, index) => (
                   <Tooltip key={index} title={collaborator}>
                     <Avatar 
                       size={32}
-                      className="ao-border-2 ao-border-white ao-shadow-sm"
-                      style={{ backgroundColor: '#87d068' }}
+                      className="collaborator-avatar"
+                      style={{ 
+                        backgroundColor: generateUserColor(collaborator),
+                        marginLeft: index > 0 ? -8 : 0
+                      }}
                     >
                       {collaborator.charAt(0)}
                     </Avatar>
@@ -232,7 +404,7 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
                   <Tooltip title={`还有 ${document.collaborators.length - 3} 位协作者`}>
                     <Avatar 
                       size={32}
-                      className="ao-border-2 ao-border-white ao-bg-gray-300 ao-text-gray-600"
+                      className="collaborator-avatar more-avatar"
                     >
                       +{document.collaborators.length - 3}
                     </Avatar>
@@ -241,54 +413,40 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
               </div>
             )}
 
-            <Divider type="vertical" className="ao-h-6" />
+            <Divider type="vertical" className="header-divider" />
 
-            {/* 操作按钮 */}
-            <Space size="small">
-              {/* 协作面板切换 */}
+            {/* 主要操作按钮 */}
+            <Space size="middle">
               <Tooltip title={showCollaborationPanel ? '隐藏协作面板' : '显示协作面板'}>
                 <Button
                   type="text"
                   icon={showCollaborationPanel ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
                   onClick={() => setShowCollaborationPanel(!showCollaborationPanel)}
-                  className="ao-w-8 ao-h-8"
+                  className="panel-toggle-btn"
                 />
               </Tooltip>
 
-              {/* 评论 */}
-              <Tooltip title="评论">
-                <Button
-                  type="text"
-                  icon={<CommentOutlined />}
-                  className="ao-w-8 ao-h-8"
-                  onClick={() => message.info('评论功能开发中')}
-                />
-              </Tooltip>
-
-              {/* 保存 */}
               {!readOnly && (
                 <Button
                   type="primary"
                   icon={<SaveOutlined />}
                   loading={isSaving}
                   onClick={() => handleSave(true)}
-                  size="middle"
+                  className="save-btn"
                 >
                   保存
                 </Button>
               )}
 
-              {/* 分享 */}
               <Button
                 type="default"
                 icon={<ShareAltOutlined />}
-                onClick={handleShare}
-                size="middle"
+                onClick={() => message.info('分享功能开发中')}
+                className="share-btn"
               >
                 分享
               </Button>
 
-              {/* 更多操作 */}
               <Dropdown
                 menu={{ 
                   items: moreMenuItems,
@@ -299,33 +457,39 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
                 <Button
                   type="text"
                   icon={<MoreOutlined />}
-                  className="ao-w-8 ao-h-8"
+                  className="more-btn"
                 />
               </Dropdown>
             </Space>
           </div>
         </div>
 
+        {/* 文档工具栏 */}
+        {!readOnly && (
+          <DocumentToolbar 
+            editorInstance={editorRef.current?.getInstance()}
+            onCommand={(command, params) => {
+              console.log('Toolbar command:', command, params);
+            }}
+          />
+        )}
+
         {/* 编辑器主体区域 */}
-        <div className="ao-flex-1 ao-overflow-hidden ao-bg-gray-50">
-          <div className="ao-h-full ao-overflow-y-auto">
-            {/* 文档容器 - 飞书风格的居中布局 */}
-            <div className="ao-max-w-4xl ao-mx-auto ao-py-8 ao-px-6">
-              <div className="ao-bg-white ao-shadow-sm ao-rounded-lg ao-overflow-hidden">
-                {/* 编辑器内容区 */}
-                <div className="ao-p-12">
-                  <EditorJS
-                    ref={editorRef}
-                    value={content}
-                    onChange={handleContentChange}
-                    readOnly={readOnly}
-                    placeholder={readOnly ? '这是一个只读文档' : '输入 / 来查看所有命令'}
-                    minHeight={500}
-                    autoFocus={!readOnly}
-                    className="feishu-editor"
-                  />
-                </div>
-              </div>
+        <div className="feishu-editor-body">
+          <div className="editor-container">
+            <div className="editor-wrapper">
+              <EditorJS
+                ref={editorRef}
+                value={editorContent}
+                onChange={handleContentChange}
+                readOnly={readOnly}
+                placeholder={readOnly ? '这是一个只读文档' : '输入 / 来查看所有命令'}
+                minHeight={600}
+                autoFocus={!readOnly}
+                className="feishu-editor-content"
+                enableHoverToolbar={enableHoverToolbar}
+                hoverToolbarPlugins={hoverToolbarPlugins}
+              />
             </div>
           </div>
         </div>
@@ -333,55 +497,120 @@ const FeishuDocumentEditor: React.FC<FeishuDocumentEditorProps> = ({
 
       {/* 右侧协作面板 */}
       {showCollaborationPanel && (
-        <div className="ao-w-80 ao-bg-white ao-border-l ao-border-gray-200 ao-flex ao-flex-col">
+        <div className="feishu-collaboration-panel">
           {/* 面板头部 */}
-          <div className="ao-p-4 ao-border-b ao-border-gray-200 ao-flex ao-items-center ao-justify-between">
-            <Title level={5} className="!ao-mb-0">协作面板</Title>
+          <div className="panel-header">
+            <Title level={5} className="panel-title">协作面板</Title>
             <Button
               type="text"
               icon={<CloseOutlined />}
               size="small"
               onClick={() => setShowCollaborationPanel(false)}
+              className="panel-close-btn"
             />
           </div>
 
           {/* 面板内容 */}
-          <div className="ao-flex-1 ao-p-4 ao-space-y-6">
-            {/* 在线用户 */}
-            <div>
-              <div className="ao-text-sm ao-font-medium ao-text-gray-700 ao-mb-3">在线用户</div>
-              <div className="ao-space-y-2">
+          <div className="panel-content">
+            {/* 在线用户模块 */}
+            <div className="panel-section">
+              <div className="section-header">
+                <UserOutlined className="section-icon" />
+                <span className="section-title">在线用户</span>
+                <span className="section-count">
+                  ({document?.collaborators?.length || 0})
+                </span>
+              </div>
+              
+              <div className="users-list">
                 {document?.collaborators?.map((collaborator, index) => (
-                  <div key={index} className="ao-flex ao-items-center ao-space-x-3">
-                    <Avatar size={24} style={{ backgroundColor: '#87d068' }}>
+                  <div key={index} className="user-item">
+                    <Avatar 
+                      size={28} 
+                      style={{ backgroundColor: generateUserColor(collaborator) }}
+                      className="user-item-avatar"
+                    >
                       {collaborator.charAt(0)}
                     </Avatar>
-                    <span className="ao-text-sm ao-text-gray-700">{collaborator}</span>
-                    <div className="ao-w-2 ao-h-2 ao-rounded-full ao-bg-green-500"></div>
+                    <span className="user-item-name">{collaborator}</span>
+                    <div className="user-status-indicator online" />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 版本历史 */}
-            <div>
-              <div className="ao-text-sm ao-font-medium ao-text-gray-700 ao-mb-3 ao-flex ao-items-center">
-                <HistoryOutlined className="ao-mr-2" />
-                版本历史
+            {/* 最近活动模块 */}
+            <div className="panel-section">
+              <div className="section-header">
+                <ClockCircleOutlined className="section-icon" />
+                <span className="section-title">最近活动</span>
               </div>
-              <div className="ao-text-sm ao-text-gray-500">
-                暂无版本历史
+              
+              <div className="activities-list">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className="activity-item">
+                    <div className={`activity-indicator ${activity.type}`} />
+                    <div className="activity-content">
+                      <div className="activity-text">
+                        <strong>{activity.user}</strong> {activity.content}
+                      </div>
+                      <div className="activity-time">{activity.time}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* 评论 */}
-            <div>
-              <div className="ao-text-sm ao-font-medium ao-text-gray-700 ao-mb-3 ao-flex ao-items-center">
-                <CommentOutlined className="ao-mr-2" />
-                评论
+            {/* 版本历史模块 */}
+            <div className="panel-section">
+              <div className="section-header">
+                <HistoryOutlined className="section-icon" />
+                <span className="section-title">版本历史</span>
               </div>
-              <div className="ao-text-sm ao-text-gray-500">
-                暂无评论
+              
+              <div className="versions-list">
+                {versionHistory.map((version, index) => (
+                  <div key={index} className="version-item">
+                    <div className="version-info">
+                      <span className="version-number">{version.version}</span>
+                      <span className="version-author">by {version.author}</span>
+                    </div>
+                    <div className="version-time">{version.time}</div>
+                  </div>
+                ))}
+                
+                <Button 
+                  type="link" 
+                  size="small"
+                  className="view-all-versions"
+                >
+                  查看完整历史
+                </Button>
+              </div>
+            </div>
+
+            {/* 评论模块 */}
+            <div className="panel-section">
+              <div className="section-header">
+                <CommentOutlined className="section-icon" />
+                <span className="section-title">评论</span>
+                <span className="section-count">(0)</span>
+              </div>
+              
+              <div className="comments-section">
+                <div className="no-comments">
+                  <Text type="secondary">暂无评论</Text>
+                </div>
+                
+                <Button 
+                  type="dashed" 
+                  icon={<PlusOutlined />}
+                  size="small"
+                  block
+                  className="add-comment-btn"
+                >
+                  添加评论
+                </Button>
               </div>
             </div>
           </div>

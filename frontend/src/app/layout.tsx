@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import "./globals.css";
 
 // 引入 Antd React 19 兼容性配置
 import "@/lib/antd-compat";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Aokiz Docx - 在线文档编辑器",
@@ -26,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className={`${inter.variable} antialiased`}>
+      <body className="antialiased">
         <AntdRegistry>
           {children}
         </AntdRegistry>

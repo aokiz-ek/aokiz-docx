@@ -38,8 +38,8 @@ module.exports = {
         error: 'var(--error)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)'],
-        mono: ['var(--font-geist-mono)'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
       },
       spacing: {
         '18': '4.5rem',
