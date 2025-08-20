@@ -128,7 +128,7 @@ export const useSlashCommand = (options: UseSlashCommandOptions = {}) => {
     const handleGlobalKeydown = (e: Event) => {
       // 检查是否在编辑器内
       const target = e.target as HTMLElement;
-      if (!target || !target.closest('[data-cy="editorjs"]') && !target.closest('.codex-editor')) {
+      if (!target || (!target.closest('[data-editor-js="true"]') && !target.closest('.codex-editor') && !target.closest('[data-cy="editorjs"]'))) {
         return;
       }
 

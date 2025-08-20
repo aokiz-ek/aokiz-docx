@@ -131,7 +131,11 @@ export const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
       key: 'todo', 
       icon: <CheckSquareOutlined />, 
       title: '待办列表',
-      action: () => insertBlock('checklist', { items: [{ text: '', checked: false }] })
+      action: () => insertBlock('checklist', { 
+        items: [
+          { text: '待办事项', checked: false }
+        ]
+      })
     }
   ];
 

@@ -97,7 +97,11 @@ export const HoverToolbar: React.FC<HoverToolbarProps> = ({
       icon: <CheckSquareOutlined />,
       title: '任务列表',
       group: 'format',
-      action: () => insertBlock('checklist', { items: [{ text: '', checked: false }] })
+      action: () => insertBlock('checklist', { 
+        items: [
+          { text: '待办事项', checked: false }
+        ]
+      })
     },
     {
       id: 'quote',

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useImperativeHandle, forwardRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef, useCallback, useMemo, useState } from 'react';
 import EditorJS, { OutputData } from '@editorjs/editorjs';
 import { EditorJSProps, EditorJSRef } from '@/types/editor';
 import SlashCommand from './SlashCommand';
@@ -78,9 +78,13 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   const editorRef = useRef<EditorJS | null>(null);
   const holderRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
+  
+  // 使用状态来跟踪编辑器实例，这样hooks可以正确响应变化
+  const [editorInstance, setEditorInstance] = useState<EditorJS | null>(null);
 
   // 合并工具配置
   const mergedTools = useMemo(() => {
+    console.log('EditorJS: Checklist tool imported:', Checklist);
     // 默认工具配置 - AO风格
     const defaultTools = {
       paragraph: {
@@ -109,6 +113,9 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       checklist: {
         class: Checklist,
         inlineToolbar: true,
+        config: {
+          defaultChecked: false
+        }
       },
       quote: {
         class: Quote,
@@ -307,7 +314,9 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       }
     };
 
-    return { ...defaultTools, ...tools };
+    const mergedResult = { ...defaultTools, ...tools };
+    console.log('EditorJS: Merged tools with checklist:', mergedResult.checklist);
+    return mergedResult;
   }, [tools, placeholder]);
 
   // 初始化编辑器
@@ -353,6 +362,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
       });
 
       editorRef.current = editor;
+      setEditorInstance(editor);
 
       // 初始化拖拽功能
       if (!readOnly) {
@@ -402,6 +412,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
           // 编辑器销毁失败
         }
         editorRef.current = null;
+        setEditorInstance(null);
         isInitialized.current = false;
       }
     },
@@ -422,6 +433,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
           // 编辑器销毁失败
         }
         editorRef.current = null;
+        setEditorInstance(null);
         isInitialized.current = false;
       }
     };
@@ -453,8 +465,17 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
   
   // 斜杠命令功能
   const { slashState, handleCommandSelect, closeSlashCommand } = useSlashCommand({
-    editorInstance: editorRef.current
+    editorInstance: editorInstance
   });
+  
+  // 调试日志
+  useEffect(() => {
+    console.log('EditorJS: Editor instance changed for slash command:', {
+      hasInstance: !!editorInstance,
+      isInitialized: isInitialized.current,
+      slashVisible: slashState.visible
+    });
+  }, [editorInstance, slashState.visible]);
 
   // EditorJS 标准工具栏功能
   const { 
@@ -463,7 +484,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
     currentBlock: _toolbarBlock, 
     selectedText: _selectedText 
   } = useEditorJSToolbar({
-    editorInstance: editorRef.current,
+    editorInstance: editorInstance,
     enabled: enableHoverToolbar && !readOnly,
     plusButtonDelay: 200,
     inlineToolbarDelay: 100
@@ -562,6 +583,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
         }
       }
       editorRef.current = null;
+      setEditorInstance(null);
       isInitialized.current = false;
       setTimeout(() => {
         initializeEditor();
@@ -583,7 +605,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
         position={slashState.position}
         onSelect={handleCommandSelect}
         onClose={closeSlashCommand}
-        editorInstance={editorRef.current}
+        editorInstance={editorInstance}
       />
       
       {/* EditorJS 标准工具栏 */}
@@ -591,7 +613,7 @@ const EditorJSComponent = forwardRef<EditorJSRef, EditorJSProps>(({
         <EditorJSToolbar
           plusButtonPosition={plusButtonPosition}
           inlineToolbarPosition={inlineToolbarPosition}
-          editorInstance={editorRef.current}
+          editorInstance={editorInstance}
           onInsertBlock={handleInsertBlock}
           onFormatText={handleFormatText}
           className="editorjs-toolbar"

@@ -68,11 +68,17 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
 
   // 插入块的函数
   const insertBlock = useCallback(async (type: string, data: any) => {
-    if (!editorInstance) return Promise.resolve();
+    console.log('SlashCommand insertBlock:', { type, data, editorInstance });
+    if (!editorInstance) {
+      console.error('SlashCommand: No editor instance');
+      return Promise.resolve();
+    }
 
     try {
       const currentBlock = editorInstance.blocks.getCurrentBlockIndex();
+      console.log('SlashCommand: Current block index:', currentBlock);
       await editorInstance.blocks.insert(type, data, {}, currentBlock + 1);
+      console.log('SlashCommand: Block inserted successfully');
       // 聚焦到新插入的块
       setTimeout(() => {
         editorInstance.caret.setToBlock(currentBlock + 1);
@@ -80,6 +86,7 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
       return Promise.resolve();
     } catch (error) {
       // 插入块失败
+      console.error('SlashCommand: Insert block failed:', error);
       return Promise.reject(error);
     }
   }, [editorInstance]);
@@ -164,7 +171,14 @@ export const SlashCommand: React.FC<SlashCommandProps> = ({
       keywords: ['todo', 'task', 'checklist', '待办', '任务', '清单'],
       category: 'list',
       shortcut: '[]',
-      action: () => insertBlock('checklist', { items: [{ text: '', checked: false }] })
+      action: () => {
+        console.log('SlashCommand: Inserting checklist');
+        return insertBlock('checklist', { 
+          items: [
+            { text: '待办事项', checked: false }
+          ]
+        });
+      }
     },
 
     // 媒体类

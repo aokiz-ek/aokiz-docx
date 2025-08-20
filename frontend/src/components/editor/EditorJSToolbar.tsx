@@ -176,7 +176,11 @@ export const EditorJSToolbar: React.FC<EditorJSToolbarProps> = ({
         });
         break;
       case 'checklist':
-        onInsertBlock?.('checklist', { items: [{ text: '', checked: false }] });
+        onInsertBlock?.('checklist', { 
+          items: [
+            { text: '待办事项', checked: false }
+          ]
+        });
         break;
       case 'quote':
         onInsertBlock?.('quote', { text: '', caption: '' });
